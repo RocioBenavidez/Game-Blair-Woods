@@ -1,0 +1,59 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3hfdhquijnve"]
+
+[ext_resource type="Script" uid="uid://jkho7hyuh3u0" path="res://Escenas/escena_1.gd" id="1_64r2g"]
+[ext_resource type="Texture2D" uid="uid://c5joggbvlw52q" path="res://fonts/fondoDialogo.jpg" id="1_nule6"]
+
+[node name="Escena1" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_64r2g")
+
+[node name="Dialogo" type="Control" parent="."]
+layout_mode = 1
+anchor_left = 0.492
+anchor_top = 1.0
+anchor_right = 0.492
+anchor_bottom = 1.0
+offset_left = -438.784
+offset_top = -209.0
+offset_right = 439.216
+offset_bottom = -13.0
+
+[node name="TextureRect" type="TextureRect" parent="Dialogo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+offset_bottom = -19.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_nule6")
+metadata/_edit_group_ = true
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Dialogo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = " \"¿Qué… es esto? ¿Mark...? ¿Estás ahí?\"
+"
+
+[node name="Opciones" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 553.0
+offset_right = 922.0
+offset_bottom = 593.0
+
+[node name="Button" type="Button" parent="Opciones"]
+layout_mode = 2
+text = "Ir a la siguiente escena"
+
+[connection signal="pressed" from="Opciones/Button" to="." method="_on_button_pressed"]
