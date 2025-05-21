@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://duwv4x53h2i5t"]
+
+[ext_resource type="Script" uid="uid://y2mfxa0fad51" path="res://Scenes/escena_1.gd" id="1_6b764"]
+
+[node name="Escena1" type="Node2D"]
+script = ExtResource("1_6b764")
+
+[node name="Fondo" type="TextureRect" parent="."]
+offset_right = 1156.0
+offset_bottom = 651.0
+expand_mode = 3
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 17.0
+offset_top = 500.0
+offset_right = 1135.0
+offset_bottom = 639.0
+metadata/_edit_group_ = true
+
+[node name="DialogoLabel" type="RichTextLabel" parent="Panel"]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 35.0
+offset_right = 1102.0
+offset_bottom = 144.0
+
+[node name="NombreLabel" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 6.0
+offset_right = 111.0
+offset_bottom = 29.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
