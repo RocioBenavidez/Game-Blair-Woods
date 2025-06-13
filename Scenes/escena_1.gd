@@ -4,12 +4,13 @@ extends Node2D
 @onready var fondo = $Fondo
 @onready var nombre = $Panel/NombreLabel
 @onready var texto = $Panel/DialogoLabel
+@onready var texto_secundario = $Panel/DialogoSecundarioLabel
 @onready var temporizador = $Timer
+@onready var video_final = $Fondo/VideoFinal
 
 var indice_actual: int = 0
-var velocidad: float = 0.03
+var velocidad: float = 0.05
 var escribiendo: bool = false
-
 var lista_dialogos = [
 	{
 		"nombre":"Narrador",
@@ -54,8 +55,14 @@ var lista_dialogos = [
 	{
 		"nombre": "Narrador",
 		"texto": "Sin dudarlo, giró el volante hacia el pueblo vecino de Blair, con el corazón lleno de temor… y decisión.",
-		"imagen_fondo": load("res://Assets/backgrounds/AutoBosque.png")
+		"imagen_fondo": load("res://Assets/backgrounds/giraVolante.png")
+	},
+	{
+		"nombre":"Narrador",
+		"texto":"Las historias del bosque venían a ella como fragmentos de una vieja pesadilla: la bruja, la maldición, los cazadores que nunca regresaron. Una comunidad marcada por la paranoia, condenada por el miedo y la crueldad. Y ahora, su esposo había llevado a su hijo allí.",
+		"video_fondo": load("res://Assets/videos/mi_video.ogv")
 	}
+
 ]
 
 func _ready():
@@ -64,44 +71,68 @@ func _ready():
 
 func mostrar_dialogo_actual():
 	if indice_actual >= lista_dialogos.size():
-		queue_free()
-		return
+		queue_free() #cierra la escena
+		return #sale de la funcion
 		
-	var entrada = lista_dialogos[indice_actual]
-	
-	if  entrada.has("imagen_fondo") and entrada["imagen_fondo"] != null:
-		await cambiar_fondo_con_fade(entrada["imagen_fondo"])
-	
+	var entrada = lista_dialogos[indice_actual] # guarda el dialogo actual 
+	await manejar_fondo(entrada)
 	nombre.text = entrada["nombre"]
-	await escribir_texto(entrada["texto"])
+	await escribir_texto(entrada["texto"]) # espera a que termine de escribir todo antes de continuar
+	# Si hay video, esperar a que termine ANTES de avanzar
+	if tiene_video(entrada):
+		await esperar_video()
+	await esperar_y_continuar()
+
+func manejar_fondo(entrada: Dictionary) -> void:
+	if  entrada.has("imagen_fondo") and entrada["imagen_fondo"] != null: # si el dialogo tiene una imagen de fondo y no esta vacia
+		await cambiar_fondo_con_fade(entrada["imagen_fondo"]) # espera a que termine el cambio de fondo antes de seguir
+	elif tiene_video(entrada):
+		reproducir_video_con_fondo(entrada["video_fondo"])
 	
-	await  get_tree().create_timer(0.8).timeout
+func esperar_y_continuar() -> void:
+	await get_tree().create_timer(0.8).timeout
 	indice_actual += 1
 	mostrar_dialogo_actual()
 	
-func escribir_texto(texto_completo: String) -> void:
-	texto.text = ""
-	escribiendo = true
+func tiene_video(entrada: Dictionary) -> bool:
+	return entrada.has("video_fondo") and entrada["video_fondo"] != null
 	
-	for letra in texto_completo:
+func escribir_texto(texto_completo: String) -> void:
+	texto.text = "" # borra el texto del dialogo
+	escribiendo = true # marca que se esta escribiendo
+	
+	for letra in texto_completo: # recorre letra x letra del texto
 		texto.text += letra
-		await  get_tree().create_timer(velocidad).timeout
+		await  get_tree().create_timer(velocidad).timeout #espera un tiempo antes de escribir la siguiente letra 
 		
-	escribiendo = false 
+	escribiendo = false # termina de escribir
 	
 func cambiar_fondo_con_fade(nueva_textura: Texture2D) -> void:
-	var tween = create_tween()
-	tween.tween_property(fondo,"modulate:a", 0.0,0.4)
-	await tween.finished
+	var tween = create_tween() #animacion para nodos
+	tween.tween_property(fondo,"modulate:a", 0.0,0.4) #anima la opacidad del fondo hasta que se vuelve trasparente 
+	await tween.finished #espera que termine de animar(desvanecer el fondo)
 	
-	fondo.texture = nueva_textura
+	fondo.texture = nueva_textura #cambia la imagen de fondo 
 	
-	var tween_in = create_tween()
-	tween_in.tween_property(fondo,"modulate:a",1.0,0.4)
-	await  tween_in.finished
+	var tween_in = create_tween() #nueva animacion
+	tween_in.tween_property(fondo,"modulate:a",1.0,0.4) #hace que el fondo aparezca de apoco
+	await  tween_in.finished #espera a que termine 
+	
+func reproducir_video_con_fondo(video_stream: VideoStream):
+	fondo.texture = null
+	video_final.visible = true
+	video_final.stream = video_stream
+	video_final.play()
+	
+	
+func esperar_video() -> void:
+	await video_final.finished
+	video_final.visible = false
 	
 func _on_timer_timeout():
 	indice_actual += 1
 	mostrar_dialogo_actual()
 
+#Esta función se usa para avanzar automáticamente al siguiente diálogo luego de que pase un cierto tiempo.
+# Es útil si no querés que el jugador tenga que hacer clic para avanzar, o si querés hacer una escena que se reproduzca sola, como una cinemática.
 	
