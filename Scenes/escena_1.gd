@@ -124,7 +124,6 @@ func reproducir_video_con_fondo(video_stream: VideoStream):
 	video_final.stream = video_stream
 	video_final.play()
 	
-	
 func esperar_video() -> void:
 	await video_final.finished
 	video_final.visible = false
@@ -133,6 +132,5 @@ func _on_timer_timeout():
 	indice_actual += 1
 	mostrar_dialogo_actual()
 
-#Esta función se usa para avanzar automáticamente al siguiente diálogo luego de que pase un cierto tiempo.
-# Es útil si no querés que el jugador tenga que hacer clic para avanzar, o si querés hacer una escena que se reproduzca sola, como una cinemática.
+
 	
