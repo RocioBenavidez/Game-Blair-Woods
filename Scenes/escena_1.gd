@@ -2,12 +2,11 @@ extends Node2D
 
 
 @onready var fondo = $Fondo
-@onready var nombre = $Panel/NombreLabel
-@onready var texto = $Panel/DialogoLabel
-@onready var texto_secundario = $Panel/DialogoSecundarioLabel
 @onready var temporizador = $Timer
 @onready var video_final = $Fondo/VideoFinal
 
+var panel_escena = preload("res://panel.tscn")
+var panel
 var indice_actual: int = 0
 var velocidad: float = 0.05
 var escribiendo: bool = false
@@ -66,6 +65,8 @@ var lista_dialogos = [
 ]
 
 func _ready():
+	panel = panel_escena.instantiate()
+	add_child(panel)
 	await mostrar_dialogo_actual()
 	
 
@@ -76,8 +77,7 @@ func mostrar_dialogo_actual():
 		
 	var entrada = lista_dialogos[indice_actual] # guarda el dialogo actual 
 	await manejar_fondo(entrada)
-	nombre.text = entrada["nombre"]
-	await escribir_texto(entrada["texto"]) # espera a que termine de escribir todo antes de continuar
+	await panel.mostrar_dialogo(entrada["nombre"],entrada["texto"])
 	# Si hay video, esperar a que termine ANTES de avanzar
 	if tiene_video(entrada):
 		await esperar_video()
@@ -97,16 +97,7 @@ func esperar_y_continuar() -> void:
 func tiene_video(entrada: Dictionary) -> bool:
 	return entrada.has("video_fondo") and entrada["video_fondo"] != null
 	
-func escribir_texto(texto_completo: String) -> void:
-	texto.text = "" # borra el texto del dialogo
-	escribiendo = true # marca que se esta escribiendo
-	
-	for letra in texto_completo: # recorre letra x letra del texto
-		texto.text += letra
-		await  get_tree().create_timer(velocidad).timeout #espera un tiempo antes de escribir la siguiente letra 
-		
-	escribiendo = false # termina de escribir
-	
+
 func cambiar_fondo_con_fade(nueva_textura: Texture2D) -> void:
 	var tween = create_tween() #animacion para nodos
 	tween.tween_property(fondo,"modulate:a", 0.0,0.4) #anima la opacidad del fondo hasta que se vuelve trasparente 
